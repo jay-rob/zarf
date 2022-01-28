@@ -11,7 +11,7 @@ const cachePath = ".image-cache"
 
 func PullAll(buildImageList []string, imageTarballPath string) {
 	logrus.Info("Loading images")
-	cranePlatformOptions := crane.WithPlatform(&v1.Platform{OS: "linux", Architecture: "amd64"})
+	cranePlatformOptions := crane.WithPlatform(&v1.Platform{OS: "linux", Architecture: "arm64"})
 	imageMap := map[string]v1.Image{}
 
 	for _, src := range buildImageList {

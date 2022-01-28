@@ -1,0 +1,114 @@
+kind: ZarfInitConfig
+
+components:
+  - name: k3s
+    description: >
+      Install K3s, certified Kubernetes distribution built for IoT & Edge computing.
+      K3s provides the cluster need for Zarf running in Appliance MOde as well as can
+      host a low-resource Gitops Service if not using an existing Kubernetes platform.
+    required: true
+    scripts:
+      retry: true
+      after:
+        # Configure K3s systemd service
+        - "systemctl daemon-reload"
+        - "systemctl enable --now k3s"
+        # Wait for the K3s node to come up
+        - "/usr/local/bin/kubectl get nodes"
+    files:
+      # Include the actual K3s binary
+      - source: https://github.com/k3s-io/k3s/releases/download/v1.23.2+k3s1/k3s-arm64
+        shasum: feb2d83496fc0ecc1fa6f13e4e5ab15aa3b9a49785dddbc48c67fa73e81c9fcf
+        target: /usr/local/bin/k3s
+        executable: true
+        # K3s magic provides these tools when symlinking
+        symlinks:
+          - /usr/local/bin/kubectl
+          - /usr/local/bin/ctr
+          - /usr/local/bin/crictl
+      # Transfer the K3s images for containerd to pick them up
+      - source: https://github.com/k3s-io/k3s/releases/download/v1.23.2+k3s1/k3s-airgap-images-arm64.tar.zst
+        shasum: 673f73687560e3f3fd5615513c8d672648c54b28ae1d52baef744d75c872f797
+        target: /var/lib/rancher/k3s/agent/images/k3s.tar.zst
+      # K3s removal script
+      - source: assets/scripts/zarf-clean-k3s.sh
+        target: /usr/local/bin/zarf-clean-k3s.sh
+        executable: true
+      # The K3s systemd service definition
+      - source: assets/scripts/k3s.service
+        target: /etc/systemd/system/k3s.service
+        symlinks:
+          - /etc/systemd/system/multi-user.target.wants/k3s.service
+      # Containerd mirroring configuration with zarf string injection
+      - source: assets/misc/registries.yaml
+        target: "/etc/rancher/k3s/registries.yaml"
+        template: true
+      # Mock file for creating the kube config symlink
+      - source: assets/misc/empty-file
+        target: /etc/rancher/k3s/k3s.yaml
+        symlinks:
+          - /root/.kube/config
+
+  - name: management
+    description: "Add the K9s terminal-based K8s UI for cluster management"
+    default: true
+    files:
+      # The zarf binary is hosted on govcloud since the release on https://github.com/derailed/k9s/ is a tarball
+      - source: https://github.com/derailed/k9s/releases/download/v0.25.18/k9s_Linux_arm64.tar.gz
+        shasum: f4a15b07633bbbecd3c775867ddcede880c62f8a6294ae6dc45ede43a6d0437c
+        target: /usr/local/bin/k9s
+        executable: true
+      # Simple theme file to make K9s colors similar to Zarfs UI colors
+      - source: assets/misc/k9s-theme.yaml
+        target: /root/.k9s/skin.yml
+
+  - name: traefik-ingress
+    description: "Install the Traefik ingress (usually needed for appliance mode)"
+    required: true
+    scripts:
+      retry: true
+      after:
+        - "/usr/local/bin/kubectl get middleware"
+    manifests: assets/manifests/traefik
+    charts:
+      - name: traefik
+        url: https://helm.traefik.io/traefik
+        version: 10.9.1
+
+  - name: container-registry
+    required: true
+    scripts:
+      retry: true
+      after:
+        - "./zarf tools registry catalog $ZARF_TARGET_ENDPOINT"
+    manifests: assets/manifests/registry
+    images:
+      - registry:2
+    charts:
+      - name: docker-registry
+        url: https://helm.twun.io
+        version: 1.10.1
+
+  - name: logging
+    description: "Add Promtail, Grafana and Loki (PGL) to this cluster for log monitoring."
+    default: true
+    manifests: assets/manifests/logging
+    images:
+      - grafana/loki:2.2.0
+      - grafana/promtail:2.1.0
+      - grafana/grafana:7.5.0
+      - kiwigrid/k8s-sidecar:0.1.209
+    charts:
+      - name: loki-stack
+        url: https://grafana.github.io/helm-charts
+        version: 2.5.1
+
+  - name: gitops-service
+    description: "Add Gitea for serving gitops-based clusters in an airgap"
+    manifests: assets/manifests/gitops
+    images:
+      - gitea/gitea:1.13.7
+    charts:
+      - name: gitea
+        url: https://dl.gitea.io/charts
+        version: 2.2.5

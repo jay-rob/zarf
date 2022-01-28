@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"fmt"
+
 	"github.com/alecthomas/jsonschema"
 
 	"github.com/defenseunicorns/zarf/cli/config"
@@ -91,9 +92,12 @@ func init() {
 	archiverCmd.AddCommand(archiverDecompressCmd)
 
 	toolsCmd.AddCommand(registryCmd)
+	registryCmd.Flags().StringVar(&platformArch, "platformArch", "amd64", "The platform architecture with which to push images for. amd64 or arm64")
+
 	cranePlatformOptions := []crane.Option{
-		crane.WithPlatform(&v1.Platform{OS: "linux", Architecture: "amd64"}),
+		crane.WithPlatform(&v1.Platform{OS: "linux", Architecture: platformArch}),
 	}
+
 	registryCmd.AddCommand(craneCmd.NewCmdAuthLogin())
 	registryCmd.AddCommand(craneCmd.NewCmdPull(&cranePlatformOptions))
 	registryCmd.AddCommand(craneCmd.NewCmdPush(&cranePlatformOptions))

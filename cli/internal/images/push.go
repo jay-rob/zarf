@@ -8,8 +8,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func PushAll(imageTarballPath string, buildImageList []string, targetHost string) {
-	cranePlatformOptions := crane.WithPlatform(&v1.Platform{OS: "linux", Architecture: "amd64"})
+func PushAll(imageTarballPath string, buildImageList []string, targetHost string, platformArch string) {
+	cranePlatformOptions := crane.WithPlatform(&v1.Platform{OS: "linux", Architecture: platformArch})
 
 	for _, src := range buildImageList {
 		logContext := logrus.WithFields(logrus.Fields{

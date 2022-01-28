@@ -56,9 +56,9 @@ func RunPreflightChecks() {
 		logrus.Fatal("This program requires a Linux OS")
 	}
 
-	if !IsAMD64() {
-		logrus.Fatal("This program currently only runs on AMD64 architectures")
-	}
+	// if !IsAMD64() {
+	// 	logrus.Fatal("This program currently only runs on AMD64 architectures")
+	// }
 
 	if !IsUserRoot() {
 		logrus.Fatal("You must run this program as root.")

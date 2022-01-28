@@ -14,6 +14,7 @@ var confirmDeploy bool
 var deployComponents string
 var insecureDeploy bool
 var shasum string
+var platformArch string
 
 var packageCmd = &cobra.Command{
 	Use:   "package",
@@ -72,8 +73,12 @@ func init() {
 	packageCmd.AddCommand(packageInspectCmd)
 
 	packageCreateCmd.Flags().BoolVar(&confirmCreate, "confirm", false, "Confirm package creation without prompting")
+	packageCreateCmd.Flags().StringVar(&platformArch, "platformArch", "amd64", "The platform architecture with which to pull images for. amd64 or arm64")
+
 	packageDeployCmd.Flags().BoolVar(&confirmDeploy, "confirm", false, "Confirm package deployment without prompting")
 	packageDeployCmd.Flags().StringVar(&deployComponents, "components", "", "Comma-separated list of components to install.  Adding this flag will skip the init prompts for which components to install")
 	packageDeployCmd.Flags().BoolVar(&insecureDeploy, "insecure", false, "Skip shasum validation of remote package. Required if deploying a remote package and `--shasum` is not provided")
 	packageDeployCmd.Flags().StringVar(&shasum, "shasum", "", "Shasum of the package to deploy. Required if deploying a remote package and `--insecure` is not provided")
+	packageDeployCmd.Flags().StringVar(&platformArch, "platformArch", "amd64", "The platform architecture with which to push images for. amd64 or arm64")
+
 }
