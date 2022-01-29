@@ -10,6 +10,7 @@ import (
 type InstallOptions struct {
 	Confirmed  bool
 	Components string
+	Platform   string
 }
 
 func Install(options *InstallOptions) {
@@ -37,7 +38,7 @@ func Install(options *InstallOptions) {
 	}
 
 	// Continue running package deploy for all components like any other package
-	Deploy(config.PackageInitName, options.Confirmed, options.Components)
+	Deploy(config.PackageInitName, options.Confirmed, options.Components, options.Platform)
 
 	logrus.Info("Installation complete.  You can run \"/usr/local/bin/k9s\" to monitor the status of the deployment.")
 	logrus.WithFields(logrus.Fields{

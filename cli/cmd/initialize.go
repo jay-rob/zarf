@@ -173,4 +173,6 @@ func init() {
 	initCmd.Flags().StringVar(&state.TLS.CertPublicPath, "server-crt", "", "Path to the server public key if not generating unique PKI")
 	initCmd.Flags().StringVar(&state.TLS.CertPrivatePath, "server-key", "", "Path to the server private key if not generating unique PKI")
 	initCmd.Flags().StringVar(&initOptions.Components, "components", "", "Comma-separated list of components to install.  Adding this flag will skip the init prompts for which components to install")
+	initCmd.Flags().StringVar(&platformArch, "platformArch", "amd64", "The platform architecture with which to push images for. amd64 or arm64")
+
 }

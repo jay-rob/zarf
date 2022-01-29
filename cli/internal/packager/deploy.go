@@ -21,7 +21,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func Deploy(packagePath string, confirm bool, componentRequest string) {
+func Deploy(packagePath string, confirm bool, componentRequest string, platform string) {
 	// Prevent disk pressure on smaller systems due to leaking temp files
 	_ = os.RemoveAll("/tmp/zarf*")
 	tempPath := createPaths()
@@ -191,7 +191,7 @@ func deployComponents(tempPath componentPaths, component config.ZarfComponent) {
 		} else {
 			logrus.Info("Loading images for gitops service transfer")
 			// Push all images the images.tar file based on the zarf.yaml list
-			images.PushAll(tempPath.images, component.Images, config.GetTargetEndpoint(), )
+			images.PushAll(tempPath.images, component.Images, config.GetTargetEndpoint(), "TODO: fixme")
 			// Cleanup now to reduce disk pressure
 			_ = os.RemoveAll(tempPath.images)
 		}

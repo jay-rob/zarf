@@ -25,7 +25,7 @@ var packageCreateCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create an update package to push to the gitops server (runs online)",
 	Run: func(cmd *cobra.Command, args []string) {
-		packager.Create(confirmCreate)
+		packager.Create(confirmCreate, platformArch)
 	},
 }
 
@@ -36,7 +36,7 @@ var packageDeployCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		packageName := choosePackage(args)
 		localPackagePath := packager.HandleIfURL(packageName, shasum, insecureDeploy)
-		packager.Deploy(localPackagePath, confirmDeploy, deployComponents)
+		packager.Deploy(localPackagePath, confirmDeploy, deployComponents, platformArch)
 	},
 }
 

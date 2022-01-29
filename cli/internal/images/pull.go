@@ -9,7 +9,7 @@ import (
 
 const cachePath = ".image-cache"
 
-func PullAll(buildImageList []string, imageTarballPath string) {
+func PullAll(buildImageList []string, imageTarballPath string, platformArch string) {
 	logrus.Info("Loading images")
 	cranePlatformOptions := crane.WithPlatform(&v1.Platform{OS: "linux", Architecture: "arm64"})
 	imageMap := map[string]v1.Image{}

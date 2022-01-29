@@ -15,7 +15,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func Create(confirm bool) {
+func Create(confirm bool, platform string) {
 
 	if err := config.LoadConfig("zarf.yaml"); err != nil {
 		logrus.Debug(err)
@@ -43,7 +43,7 @@ func Create(confirm bool) {
 	for _, component := range components {
 		logrus.WithField("component", component.Name).Info("Loading component assets")
 		componentPath := createComponentPaths(tempPath.components, component)
-		addLocalAssets(componentPath, component)
+		addLocalAssets(componentPath, component, platform)
 	}
 
 	if config.IsZarfInitConfig() {
@@ -71,7 +71,7 @@ func Create(confirm bool) {
 	cleanup(tempPath)
 }
 
-func addLocalAssets(tempPath componentPaths, assets config.ZarfComponent) {
+func addLocalAssets(tempPath componentPaths, assets config.ZarfComponent, platform string) {
 	if len(assets.Charts) > 0 {
 		logrus.Info("Loading static helm charts")
 		_ = utils.CreateDirectory(tempPath.charts, 0700)
@@ -112,7 +112,7 @@ func addLocalAssets(tempPath componentPaths, assets config.ZarfComponent) {
 
 	if len(assets.Images) > 0 {
 		logrus.Info("Loading container images")
-		images.PullAll(assets.Images, tempPath.images)
+		images.PullAll(assets.Images, tempPath.images, platform)
 	}
 
 	if assets.ManifestsPath != "" {

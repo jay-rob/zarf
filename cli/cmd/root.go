@@ -26,11 +26,11 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) > 0 {
 			if strings.Contains(args[0], "zarf-package-") {
-				packager.Deploy(args[0], confirmDeploy, "")
+				packager.Deploy(args[0], confirmDeploy, "", platformArch)
 				return
 			}
 			if args[0] == "zarf.yaml" {
-				packager.Create(confirmCreate)
+				packager.Create(confirmCreate, platformArch)
 				return
 			}
 		}
